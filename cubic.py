@@ -1,23 +1,27 @@
 import numpy as np
 from matplotlib import pyplot as plt
+from pycolorplot.colorgen import ColorGenerator as CG
 import pdb
 
 def fun(x):
     return 8./3 * (-x**3 + x) 
 
-T = 4
-dt = 0.001 
-sigmas = np.linspace(0,2,9) # noise levels
+T = 4       # total simulation time
+dt = 0.001  # timestep
+sigmas = np.linspace(0,2,9)     # noise levels
+x0s = np.linspace(-1.5,1.5,10)  # initial conditions
 
-x0s = np.linspace(-1.5,1.5,10)
+cgen = CG('red')
 
 print 'plotting phase portrait'
 x = np.linspace(-1.5,1.5,50)
 plt.figure('phase')
+ax = plt.subplot(111)
+ax.plot(x, fun(x), color='k')
+ax.set_color_cycle(cgen.get_color_list(10))
 for x0 in x0s:
     plt.plot(x0, fun(x0), 'o', markersize=10)
-plt.plot(x, fun(x), color='k')
-plt.axhline(color='k')
+plt.axhline(color='b')
 plt.xlabel(r'$x$', fontsize=18)
 plt.ylabel(r'$\dot{x}$', fontsize=18)
 plt.savefig('phase')
