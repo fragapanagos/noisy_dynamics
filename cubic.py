@@ -20,8 +20,11 @@ T = 4       # total simulation time
 dt = 0.001  # timestep
 x0s = np.linspace(-1.5,1.5,10)  # initial conditions
 x = np.linspace(-1.5,1.5,50)    # space to examine phase
-sigmas = np.linspace(0,1,9)     # noise levels
-noise_sources = [gaussian(mu=0, sigma=sigma) for sigma in sigmas] # noise generators
+max_sigma = 2. # 
+
+sigmas = np.linspace(0,2,9)     # noise levels
+# noise_sources = [gaussian(mu=0, sigma=sigma) for sigma in sigmas] # gaussian
+noise_sources = [uniform(mu=0, sigma=sigma) for sigma in sigmas] # uniform
 
 cgen = CG('red') # color generator for plotting
 
@@ -38,13 +41,10 @@ plt.ylabel(r'$\dot{x}$', fontsize=18)
 plt.savefig('phase')
 
 print 'analyzing phase portrait with noise...'
-# xtick_loc = [-1.5, -.
-# xtick_lab = [str(float(i)) for i in range(5)]
-plt.figure('phase_uniform_noise')
+plt.figure('phase_noise')
 for noise_idx, noise_src in enumerate(noise_sources):
     phase_conv = np.zeros(x.shape)
     for i, pt in enumerate(x):
-        # phase_conv[i] = np.mean(dxdt(np.linspace(x[i]- sigma / 2., x[i] + sigma / 2., 50)))
         phase_conv[i] = local_avg(pt, dxdt, noise_src, dxmin=3, dxmax=3)
     plt.subplot(3,3,noise_idx+1)
     plt.plot(x, phase_conv, color='k')
@@ -59,7 +59,7 @@ plt.xlabel(r'$x$', fontsize=18)
 plt.subplot(334)
 plt.ylabel(r'$\dot{x}$', fontsize=18)
 plt.tight_layout()
-plt.savefig('phase_uniform_noise')
+plt.savefig('phase_noise')
 
 print 'running dynamics...'
 plt.figure('dynamics')
