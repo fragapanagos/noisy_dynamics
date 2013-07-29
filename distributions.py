@@ -1,4 +1,5 @@
 import numpy as np
+import random
 
 class distribution:
     def __init__(self, name):
@@ -10,5 +11,7 @@ class gaussian(distribution):
         self.mu = mu
         self.sigma = sigma
     def pdf(self, x):
-        """probability density function"""
         return np.exp(- (x - self.mu)**2 / (2 * self.sigma**2))
+    def get_sample(self):
+        return random.normalvariate(self.mu, self.sigma)
+        
