@@ -4,8 +4,12 @@ from pycolorplot.colorgen import ColorGenerator as CG
 from distributions import *
 import pdb
 
-def dxdt(x):
+def dxdt_cubic(x):
     return 8./3 * (-x**3 + x) 
+
+def dxdt_quad_clip(x):
+    base = x**2 - 1
+    return np.where(np.logical_and(base>0,x>0), 1-x, base)
 
 def local_avg(x, dxdt, dist, dxmin=1, dxmax=1, npts=50):
     """Convolves dxdt with dist around x.
@@ -16,15 +20,21 @@ def local_avg(x, dxdt, dist, dxmin=1, dxmax=1, npts=50):
     pts, step = np.linspace(x-dxmin, x+dxmax, num=npts, retstep=True)
     return np.sum(dxdt(pts) * dist.pdf(pts-x)) * step
 
+# simulation parameters
 T = 4       # total simulation time
-dt = 0.001  # timestep
+dt = 0.001  # simulation timestep
 x0s = np.linspace(-1.5,1.5,10)  # initial conditions
 x = np.linspace(-1.5,1.5,50)    # space to examine phase
-max_sigma = 2. # 
 
-sigmas = np.linspace(0,2,9)     # noise levels
-# noise_sources = [gaussian(mu=0, sigma=sigma) for sigma in sigmas] # gaussian
-noise_sources = [uniform(mu=0, sigma=sigma) for sigma in sigmas] # uniform
+# select dynamical system
+# dxdt = dxdt_cubic # cubic system
+dxdt = dxdt_quad_clip # quadratic system
+
+# noise parameters 
+max_sigma = 1.              # max noise level
+sigmas = np.linspace(0,2,9) # noise levels
+noise_sources = [gaussian(mu=0, sigma=sigma) for sigma in sigmas] # gaussian
+# noise_sources = [uniform(mu=0, sigma=sigma) for sigma in sigmas] # uniform
 
 cgen = CG('red') # color generator for plotting
 
