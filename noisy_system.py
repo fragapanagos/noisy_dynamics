@@ -113,9 +113,9 @@ for noise_idx, noise_src in enumerate(noise_sources):
         plt.xticks(xtick_loc, xtick_loc)
     plt.title(r'$\sigma=%1.2f$'%sigmas[noise_idx])
 plt.subplot(338)
-plt.xlabel(r'$x$', fontsize=18)
+plt.xlabel(r'$t$', fontsize=18)
 plt.subplot(334)
-plt.ylabel(r'$\dot{x}$', fontsize=18)
+plt.ylabel(r'$x$', fontsize=18)
 plt.tight_layout()
 plt.savefig('dynamics')
 
