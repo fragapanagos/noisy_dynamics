@@ -2,50 +2,34 @@ import numpy as np
 from matplotlib import pyplot as plt
 from pycolorplot.colorgen import ColorGenerator as CG
 from distributions import *
+from util import *
 import pdb
 
+###  dynamical system functions to choose from ##########
 def dxdt_cubic(x, u):
     return 8./3 * (-(x+u)**3 + (x+u)) 
 
-def dxdt_quad_clip(x, u):
-    base = (x+u)**2 - 1
-    return np.where(np.logical_and(base>0,(x+u)>0), 1-(x+u), base)
-
-def dxdt_int_with_error(x, u):
+def dxdt_integrator_with_error(x, u):
     return 0.1*np.sin(4*np.pi*x) + u
 
-def dxdt_int(x,u):
+def dxdt_integrator(x,u):
     return np.zeros(x.shape) + u
 
-def local_avg(x, dxdt, dist, dxmin=1, dxmax=1, npts=50):
-    """Convolves dxdt with dist around x.
+def dxdt_exp(x,u):
+    return np.exp(-x+u) - 1
+#########################################################
 
-    Uses the region [x-dxmin: x+dxmax]"""
-    if dist.sigma == 0:
-        return dxdt(x, 0)
-    pts, step = np.linspace(x-dxmin, x+dxmax, num=npts, retstep=True)
-    return np.sum(dxdt(pts, 0) * dist.pdf(pts-x)) * step
-
-def find_stable_pts(x, fx):
-    """finds the stable points of a dynamical system"""
-    passed_zero = np.where(np.diff(np.sign(fx))<0)[0]
-    stable_x = (x[passed_zero+1] + x[passed_zero]) / 2.
-    return stable_x
-
-# simulation parameters
+### simulation parameters
 T = 4       # total simulation time
 dt = 0.001  # simulation timestep
 x0s = np.linspace(-1.5,1.5,10)  # initial conditions
-x = np.linspace(-1.5,1.5,100)    # space to examine phase
+x = np.linspace(-1.5,1.5,100)   # space to examine phase
 
-# select dynamical system
-# dxdt = dxdt_cubic 
-dxdt = dxdt_quad_clip 
-# dxdt = dxdt_int_with_error 
-# dxdt = dxdt_int 
+### select dynamical system
+dxdt = dxdt_exp
 
-# noise parameters 
-max_sigma = 1.              # max noise level
+### noise parameters 
+max_sigma = 1.                      # max noise level
 sigmas = np.linspace(0,max_sigma,9) # noise levels
 noise_sources = [gaussian(mu=0, sigma=sigma) for sigma in sigmas] # gaussian
 # noise_sources = [uniform(mu=0, sigma=sigma) for sigma in sigmas] # uniform
@@ -81,8 +65,6 @@ for noise_idx, noise_src in enumerate(noise_sources):
     s_pts = find_stable_pts(x, phase_conv)
     for pt in s_pts:
         plt.axvline(pt)
-    # zc_idx = np.where(np.diff(np.sign(phase_conv)))[0][-1]
-    # plt.axvline((x[zc_idx]+x[zc_idx+1])/2, color='r')
     plt.title(r'$\sigma=%1.2f$'%sigmas[noise_idx])
 plt.subplot(338)
 plt.xlabel(r'$x$', fontsize=18)
@@ -110,8 +92,11 @@ for noise_idx, noise_src in enumerate(noise_sources):
             time.append(now)
             states.append(state)
         ax.plot(time, states)
-        plt.xticks(xtick_loc, xtick_loc)
+    plt.xticks(xtick_loc, xtick_loc)
+    plt.xlim(0,T)
     plt.title(r'$\sigma=%1.2f$'%sigmas[noise_idx])
+    plt.xlabel(r'$t$', fontsize=18)
+    plt.ylabel(r'$x$', fontsize=18)
 plt.subplot(338)
 plt.xlabel(r'$t$', fontsize=18)
 plt.subplot(334)
