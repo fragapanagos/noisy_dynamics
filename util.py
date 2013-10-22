@@ -13,6 +13,20 @@ def local_avg(x, dxdt, dist, dxmin=1, dxmax=1, npts=50):
 
 def find_stable_pts(x, fx):
     """finds the stable points of a dynamical system"""
-    passed_zero = np.where(np.diff(np.sign(fx))<0)[0]
-    stable_x = (x[passed_zero+1] + x[passed_zero]) / 2.
+    pre_idx = np.where(np.diff(np.sign(fx))<-1)[0] 
+    post_idx = pre_idx+1
+    slopes = (fx[post_idx] - fx[pre_idx]) / (x[post_idx] - x[pre_idx])
+    # interpolate to find zero crossings
+    stable_x = -fx[pre_idx] / slopes + x[pre_idx] 
     return stable_x
+
+if __name__ == "__main__":
+    import pylab as plt
+    x = np.arange(-1,1.1,.1)
+    y = np.random.randn(len(x))
+    stpts = find_stable_pts(x,y)
+    plt.plot(x,y, '-o')
+    plt.axhline(color='k')
+    for stpt in stpts:
+        plt.axvline(stpt)
+    plt.show()
